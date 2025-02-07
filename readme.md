@@ -9,9 +9,10 @@ Here you can see building branches and creating various tags
 
 # Links
 
-Changelog: https://github.com/DullAnt/DevOps_Kt1/blob/master/changelog.md
-Commands: https://github.com/DullAnt/DevOps_Kt1/blob/master/commands.md
-Install: https://github.com/DullAnt/DevOps_Kt1/blob/master/install.md
+  - [Changelog](https://github.com/DullAnt/DevOps_Kt1/blob/master/changelog.md)
+   - [Commands](https://github.com/DullAnt/DevOps_Kt1/blob/master/commands.md)
+   - [Install](https://github.com/DullAnt/DevOps_Kt1/blob/master/install.md)
+
 
 ![image](https://github.com/user-attachments/assets/d005c0d9-c9fe-4585-a793-2baa31471677)
 
