@@ -5,7 +5,7 @@ This repository is for learning how to use git only
 Here you can see building branches and creating various tags
 
 # Developer
-### This project was developed by DullAnt.My GitHub profile: (https://github.com/DullAnt)
+### This project was developed by DullAnt. My GitHub profile: (https://github.com/DullAnt)
 
 # Links
 
