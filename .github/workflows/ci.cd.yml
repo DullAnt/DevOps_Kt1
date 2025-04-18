@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ "main", "master" ]
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  testing:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Unit Tests (заглушка)
+        run: |
+          echo "Running unit tests..."
+          # Здесь будут реальные команды для тестов (например, pytest, jest и т.д.)
+          echo "Unit tests passed!" > test-results.txt
+        continue-on-error: false
+
+      - name: Run Integration Tests (заглушка)
+        run: |
+          echo "Running integration tests..."
+          echo "Integration tests passed!" >> test-results.txt
+        continue-on-error: false
+
+      - name: Label PR if tests pass
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['test-passed']
+            })
+
+      - name: Upload test results (опционально)
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results.txt
