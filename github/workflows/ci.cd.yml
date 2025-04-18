@@ -1,0 +1,48 @@
+name: Version update pipeline
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+    - release
+jobs:
+  run-script:
+    # if: startsWith(steps.branch-names.outputs.current_brunch, 'refs/heads/feature/') || startsWith(steps.branch-names.outputs.current_brunch, 'refs/heads/hotfix/')
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Get branch names
+      id: branch-names
+      uses: tj-actions/branch-names@v8
+      
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.13.2'
+
+    - name: Run Python script
+      run: |
+        python .github/workflows/versionUpdateScript.py patch
+  
+    - name: Configure Git
+      run: |
+        git config --global user.email "hitman47388@mail.ru"
+        git config --global user.name "Dull_ant"
+
+    - name: Commit and push changes
+      run: |
+        git add version version_log
+        git commit -m "Update version and log"
+        git push origin release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-fixme:
+    name: (TST)
+    needs: run-script
+    uses: \Devops\Kt1\github\workflows\tests.yml"
+    with:
+      version: alpha
