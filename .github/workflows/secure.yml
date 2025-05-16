@@ -1,37 +1,69 @@
-name: "1. Security Checks"
+name: Security Checks
+
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  workflow_call:
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
 
 jobs:
-  security:
+  antivirus:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-
+    name: Security Scan (Trivy)
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check for Docker files
-        id: docker_check
-        run: |
-          echo "dockerfile-exists=$(test -f Dockerfile && echo true || echo false)" >> $GITHUB_OUTPUT
-          echo "compose-exists=$(test -f docker-compose.yml && echo true || echo false)" >> $GITHUB_OUTPUT
-
-      - name: Scan Docker for vulnerabilities
-        if: steps.docker_check.outputs.dockerfile-exists == 'true'
-        uses: aquasecurity/trivy-action@master
+      - uses: actions/checkout@v4
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@0.14.0
         with:
           scan-type: 'fs'
-          scan-ref: '.'
+          ignore-unfixed: true
+          exit-code: '0'
+          format: 'table'
+          severity: 'CRITICAL'
 
-      - name: Add security label
-        if: success()
-        uses: actions-ecosystem/action-add-labels@v1
+  security_linter:
+    runs-on: ubuntu-latest
+    name: Security Linter (Bandit)
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          labels: 'security-passed'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ github.repository }}
-          number: ${{ github.event.pull_request.number }}
+          python-version: '3.x'
+      - name: Install Bandit
+        run: pip install bandit
+      - name: Run Bandit scan
+        run: bandit -r . -ll
+
+  secrets_check:
+    runs-on: ubuntu-latest
+    name: TruffleHog Scan
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  add_sec_label:
+    name: Add sec-passed label
+    runs-on: ubuntu-latest
+    needs: [antivirus, security_linter, secrets_check]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['sec-passed']
+              });
+            } catch (error) {
+              core.error('Failed to add label: ' + error.message);
+              core.setFailed(error.message);
+            }
