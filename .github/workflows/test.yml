@@ -1,5 +1,10 @@
 name: "2. Test Checks"
 
+permissions:
+  contents: write  # для изменений в репозитории
+  pull-requests: write  # для работы с PR
+  issues: write  # для работы с issues
+  
 on: 
   workflow_run:
     workflows: ["1. Security Checks"]
