@@ -1,0 +1,24 @@
+- hosts: agents
+  gather_facts: no
+  tasks:
+    - name: Получить IP-адрес
+      command: hostname -I
+      register: ip_output
+
+    - name: Попытка получить загрузку памяти через free
+      command: free -m
+      register: mem_output
+      ignore_errors: yes
+
+    - name: Если free не сработал, получить загрузку памяти через /proc/meminfo
+      command: cat /proc/meminfo
+      when: mem_output.failed
+      register: mem_output_fallback
+
+    - name: Вывести IP и загрузку памяти
+      debug:
+        msg: |
+          Хост: {{ inventory_hostname }}
+          IP-адрес: {{ ip_output.stdout }}
+          Загрузка памяти:
+          {{ (mem_output.stdout if not mem_output.failed else mem_output_fallback.stdout) | trim }}

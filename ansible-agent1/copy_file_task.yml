@@ -1,0 +1,26 @@
+- hosts: agents
+  become: yes
+  tasks:
+    - name: Создать исходный файл
+      copy:
+        content: "Это тестовый файл для копирования.\n"
+        dest: /home/ansible/source_file.txt
+        owner: ansible
+        group: ansible
+        mode: '0644'
+
+    - name: Создать каталог назначения
+      file:
+        path: /home/ansible/destination_dir
+        state: directory
+        owner: ansible
+        group: ansible
+        mode: '0755'
+
+    - name: Копировать файл в новый каталог
+      copy:
+        src: /home/ansible/source_file.txt
+        dest: /home/ansible/destination_dir/destination_file.txt
+        owner: ansible
+        group: ansible
+        mode: '0644'

@@ -1,0 +1,22 @@
+---
+- name: Работа с файлом на агентах
+  hosts: agents
+  become: yes
+
+  tasks:
+    - name: Создать файл с содержимым
+      ansible.builtin.copy:
+        dest: /tmp/testfile.txt
+        content: "Привет от Ansible!\n"
+        mode: '0644'
+
+    - name: Изменить содержимое файла
+      ansible.builtin.lineinfile:
+        path: /tmp/testfile.txt
+        line: "Добавленная строка"
+        insertafter: EOF
+
+    - name: Удалить файл
+      ansible.builtin.file:
+        path: /tmp/testfile.txt
+        state: absent

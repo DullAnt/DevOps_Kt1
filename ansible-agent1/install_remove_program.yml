@@ -1,0 +1,13 @@
+- hosts: agents
+  become: yes
+  tasks:
+    - name: Установить программу htop
+      apt:
+        name: htop
+        state: present
+        update_cache: yes
+
+    - name: Удалить программу htop
+      apt:
+        name: htop
+        state: absent

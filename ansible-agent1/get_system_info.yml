@@ -1,0 +1,19 @@
+- hosts: agents
+  gather_facts: no
+  tasks:
+    - name: Получить IP-адрес
+      command: hostname -I
+      register: ip_output
+
+    - name: Получить загрузку памяти
+      command: free -m || cat /proc/meminfo
+      register: mem_output
+      ignore_errors: yes
+
+    - name: Вывести IP-адрес и загрузку памяти
+      debug:
+        msg: |
+          Хост: {{ inventory_hostname }}
+          IP-адрес: {{ ip_output.stdout }}
+          Загрузка памяти:
+          {{ mem_output.stdout }}
